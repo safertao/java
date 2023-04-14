@@ -19,7 +19,7 @@ public class JmeterControllerTest
     private CounterService counterService;
 
     @InjectMocks
-    private JmeterController controller = new JmeterController(counterService);
+    private ReferenceCounterController controller = new ReferenceCounterController(counterService);
 
     @Test
     public void testHitCount()
