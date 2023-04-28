@@ -33,8 +33,7 @@ public class CryptControllerTest
     private CounterService counterService;
 
     @InjectMocks
-    private CryptController cryptController = new CryptController(cryptService, cryptValidator,
-                                                                  inMemoryStorage, counterService);
+    private CryptController cryptController = new CryptController(cryptService, cryptValidator, inMemoryStorage, counterService);
 
     @Test
     public void testCryptString()
@@ -47,8 +46,8 @@ public class CryptControllerTest
         when(cryptValidator.validateMessage(message)).thenReturn(new ValidationCryptError());
         when(cryptValidator.validateMode(mode)).thenReturn(new ValidationCryptError());
 
-        ResponseEntity<Object> response = cryptController.cryptString(mode, message);
-        CryptResponse result = (CryptResponse) response.getBody();
+        ResponseEntity<CryptResponse> response = cryptController.cryptString(mode, message);
+        CryptResponse result = response.getBody();
         assertNotNull(response);
         assertEquals(answer, Objects.requireNonNull(result).answer());
     }
@@ -64,8 +63,8 @@ public class CryptControllerTest
         when(cryptValidator.validateMode(mode)).thenReturn(new ValidationCryptError());
         when(cryptService.cryptMessage(mode, message)).thenThrow(RuntimeException.class);
 
-        ResponseEntity<Object> response = cryptController.cryptString(mode, message);
-        ValidationCryptError result = (ValidationCryptError) response.getBody();
+        ResponseEntity<CryptResponse> response = cryptController.cryptString(mode, message);
+        ValidationCryptError result = Objects.requireNonNull(response.getBody()).errors();
 
         assertThrows(RuntimeException.class, () -> cryptService.cryptMessage(mode, message));
         assertNotNull(result);
@@ -86,8 +85,8 @@ public class CryptControllerTest
         errors.addError("mode has to be 'e'(encrypt) or 'd'(decrypt)");
         when(cryptValidator.validateMode(mode)).thenReturn(errors);
 
-        ResponseEntity<Object> response = cryptController.cryptString(mode, message);
-        ValidationCryptError result = (ValidationCryptError) response.getBody();
+        ResponseEntity<CryptResponse> response = cryptController.cryptString(mode, message);
+        ValidationCryptError result = Objects.requireNonNull(response.getBody()).errors();
         assertNotNull(result);
         assertEquals(errors, result);
     }
@@ -111,5 +110,21 @@ public class CryptControllerTest
         ResponsesSize result = (ResponsesSize) response.getBody();
         assertEquals(new ResponsesSize(0), result);
     }
-}
 
+    @Test
+    public void testCryptStringWithInMemoryStorage()
+    {
+        String message = "wxhvgdb";
+        char mode = 'd';
+        String answer = "tuesday";
+        ValidationCryptError errors = new ValidationCryptError();
+        CryptResponse savedResponse = new CryptResponse(mode, message, answer, errors);
+
+        when(inMemoryStorage.getSavedCryptResponse(message)).thenReturn(savedResponse);
+        ResponseEntity<CryptResponse> response = cryptController.cryptString(mode, message);
+        CryptResponse result = response.getBody();
+
+        assertNotNull(result);
+        assertEquals(result.answer(), answer);
+    }
+}
