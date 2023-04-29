@@ -1,8 +1,13 @@
 package com.labs.safertao.service;
 
+import com.labs.safertao.entity.CryptResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.labs.safertao.service.inter.ICryptService;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 @Service
 public class CryptService implements ICryptService
@@ -33,5 +38,40 @@ public class CryptService implements ICryptService
             result.append((char) tmp);
         }
         return result.toString();
+    }
+
+    public String minLengthString(List<CryptResponse> resultList)
+    {
+        String result = "";
+        List<String> strings = new ArrayList<>();
+        resultList.forEach(e -> strings.add(e.answer()));
+        if (!strings.isEmpty())
+        {
+            result = strings.stream()
+                    .min(Comparator.comparingInt(String::length))
+                    .get();
+        }
+        return result;
+    }
+
+    public String maxLengthString(List<CryptResponse> resultList)
+    {
+        String result = "";
+        List<String> strings = new ArrayList<>();
+        resultList.forEach(e -> strings.add(e.answer()));
+        if (!strings.isEmpty())
+        {
+            result = strings.stream()
+                    .max(Comparator.comparingInt(String::length))
+                    .get();
+        }
+        return result;
+    }
+
+    public Integer avgLength(List<CryptResponse> resultList)
+    {
+        final Integer[] sumLength = {0};
+        resultList.forEach(e -> sumLength[0] += e.answer().length());
+        return sumLength[0]/resultList.size();
     }
 }

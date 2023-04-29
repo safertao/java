@@ -8,7 +8,6 @@ import java.util.Objects;
 public class ValidationCryptError
 {
     private List<String> errors = new ArrayList<>();
-    private String status;
 
     public void addError(String error)
     {
@@ -18,15 +17,10 @@ public class ValidationCryptError
     {
         this.errors.addAll(errors);
     }
-    public void setStatus(String status)
-    {
-        this.status = status;
-    }
     public List<String> getErrors()
     {
         return errors;
     }
-    public String getStatus() { return status;}
 
     @Override
     public boolean equals(Object o)
@@ -36,7 +30,6 @@ public class ValidationCryptError
 
         ValidationCryptError that = (ValidationCryptError) o;
 
-        if (!Objects.equals(errors, that.errors)) return false;
-        return Objects.equals(status, that.status);
+        return Objects.equals(errors, that.errors);
     }
 }

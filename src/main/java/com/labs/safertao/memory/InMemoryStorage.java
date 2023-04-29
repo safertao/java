@@ -34,8 +34,4 @@ public class InMemoryStorage
 
     public Map<String, CryptResponse> getDataStorage() { return dataStorage; }
 
-    public void addCryptResponsesList()
-    {
-        // TODO: create this method
-    }
 }
