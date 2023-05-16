@@ -112,7 +112,9 @@ public class CryptController
             ResponseEntity<CryptResponse> response = cryptString(e.mode(), e.message());
             CryptResponse res = response.getBody();
             if(!Objects.equals(Objects.requireNonNull(res).status(), HttpStatus.OK.name()))
+            {
                 resultStatus[0] = HttpStatus.valueOf(res.status());
+            }
             result.add(res);
         });
         logger.info("successful post mapping");
