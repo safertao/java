@@ -45,10 +45,9 @@ public class CryptController
         {
             counterService.incrementCounter();
             counterService.incrementSynchronizedCounter();
-            status = HttpStatus.OK.name();
             CryptResponse tmp = inMemoryStorage.getSavedCryptResponse(message);
-            CryptResponse response = new CryptResponse(tmp.mode(), tmp.message(), tmp.answer(), tmp.errors(), status);
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            CryptResponse response = new CryptResponse(tmp.mode(), tmp.message(), tmp.answer(), tmp.errors(), tmp.status());
+            return new ResponseEntity<>(response, HttpStatus.valueOf(tmp.status()));
         }
         logger.info("validation");
         ValidationCryptError errors = cryptValidator.validateMessage(message);
@@ -112,7 +111,9 @@ public class CryptController
             ResponseEntity<CryptResponse> response = cryptString(e.mode(), e.message());
             CryptResponse res = response.getBody();
             if(!Objects.equals(Objects.requireNonNull(res).status(), HttpStatus.OK.name()))
+            {
                 resultStatus[0] = HttpStatus.valueOf(res.status());
+            }
             result.add(res);
         });
         logger.info("successful post mapping");
