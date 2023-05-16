@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.internal.matchers.Any;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class CryptControllerTest
-{
+public class CryptControllerTest {
     @Mock
     private CryptService cryptService;
 
@@ -39,8 +37,7 @@ public class CryptControllerTest
     private CryptController cryptController = new CryptController(cryptService, cryptValidator, inMemoryStorage, counterService);
 
     @Test
-    public void testCryptString()
-    {
+    public void testCryptString() {
         String message = "wxhvgdb";
         char mode = 'd';
         String answer = "tuesday";
@@ -56,8 +53,7 @@ public class CryptControllerTest
     }
 
     @Test
-    public void testCryptStringServiceError()
-    {
+    public void testCryptStringServiceError() {
         String message = "yesterday";
         char mode = 'd';
         String answer = "yesterday is forbidden word to encrypt(decrypt)";
@@ -78,8 +74,7 @@ public class CryptControllerTest
     }
 
     @Test
-    public void testCryptStringValidationError()
-    {
+    public void testCryptStringValidationError() {
         String message = "abcdefjhijklmnopqrstuvwxyz123456789";
         char mode = 'a';
 
@@ -98,8 +93,7 @@ public class CryptControllerTest
     }
 
     @Test
-    public void testGetAllSavedResponses()
-    {
+    public void testGetAllSavedResponses() {
         when(inMemoryStorage.getAllSavedCryptResponses()).thenReturn(null);
 
         ResponseEntity<Object> response = cryptController.getAllCryptResponses();
@@ -108,8 +102,7 @@ public class CryptControllerTest
     }
 
     @Test
-    public void testGetAllSavedResponsesSize()
-    {
+    public void testGetAllSavedResponsesSize() {
         when(inMemoryStorage.size()).thenReturn(0);
 
         ResponseEntity<Object> response = cryptController.getAllCryptResponsesSize();
@@ -118,8 +111,7 @@ public class CryptControllerTest
     }
 
     @Test
-    public void testCryptStringWithInMemoryStorage()
-    {
+    public void testCryptStringWithInMemoryStorage() {
         String message = "wxhvgdb";
         char mode = 'd';
         String answer = "tuesday";
@@ -136,8 +128,7 @@ public class CryptControllerTest
     }
 
     @Test
-    public void testCryptBulkStrings()
-    {
+    public void testCryptBulkStrings() {
         List<CryptBulkParameters> cryptList = new ArrayList<>();
         String message1 = "wxhvgdb";
         char mode1 = 'd';
