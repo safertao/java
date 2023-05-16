@@ -41,13 +41,16 @@ public class CryptControllerTest {
         String message = "wxhvgdb";
         char mode = 'd';
         String answer = "tuesday";
+        String status = HttpStatus.OK.name();
         when(cryptService.cryptMessage(mode, message)).thenReturn(answer);
         when(cryptValidator.validateMessage(message)).thenReturn(new ValidationCryptError());
         when(cryptValidator.validateMode(mode)).thenReturn(new ValidationCryptError());
-//        doNothing().when(inMemoryStorage).saveCryptResponse(new CryptResponse(mode,
-//                                        message, answer, new ValidationCryptError(), status));
+        doNothing().when(inMemoryStorage).saveCryptResponse(new CryptResponse(mode,
+                                        message, answer, new ValidationCryptError(), status));
         ResponseEntity<CryptResponse> response = cryptController.cryptString(mode, message);
         CryptResponse result = response.getBody();
+
+        verify(inMemoryStorage, times(1)).saveCryptResponse(any(CryptResponse.class));
         assertNotNull(response);
         assertEquals(answer, Objects.requireNonNull(result).answer());
     }
@@ -57,17 +60,18 @@ public class CryptControllerTest {
         String message = "yesterday";
         char mode = 'd';
         String answer = "yesterday is forbidden word to encrypt(decrypt)";
-        //String status = HttpStatus.INTERNAL_SERVER_ERROR.name();
-
-//        doNothing().when(inMemoryStorage).saveCryptResponse(new CryptResponse(mode,
-//                message, answer, new ValidationCryptError(), status));
-        when(cryptValidator.validateMessage(message)).thenReturn(new ValidationCryptError());
-        when(cryptValidator.validateMode(mode)).thenReturn(new ValidationCryptError());
+        String status = HttpStatus.INTERNAL_SERVER_ERROR.name();
+        ValidationCryptError errors = new ValidationCryptError();
+        doNothing().when(inMemoryStorage).saveCryptResponse(new CryptResponse(mode,
+                message, answer, errors, status));
+        when(cryptValidator.validateMessage(message)).thenReturn(errors);
+        when(cryptValidator.validateMode(mode)).thenReturn(errors);
         when(cryptService.cryptMessage(mode, message)).thenThrow(RuntimeException.class);
 
         ResponseEntity<CryptResponse> response = cryptController.cryptString(mode, message);
         ValidationCryptError result = Objects.requireNonNull(response.getBody()).errors();
 
+        verify(inMemoryStorage, times(1)).saveCryptResponse(any(CryptResponse.class));
         assertThrows(RuntimeException.class, () -> cryptService.cryptMessage(mode, message));
         assertNotNull(result);
         assertEquals(answer, Objects.requireNonNull(result).getErrors().get(0));
@@ -77,16 +81,20 @@ public class CryptControllerTest {
     public void testCryptStringValidationError() {
         String message = "abcdefjhijklmnopqrstuvwxyz123456789";
         char mode = 'a';
-
+        String answer = "";
+        String status = HttpStatus.BAD_REQUEST.name();
         ValidationCryptError errors = new ValidationCryptError();
         errors.addError("message can't be longer than 30 chars");
         errors.addError("message must be alpha");
+        doNothing().when(inMemoryStorage).saveCryptResponse(new CryptResponse(mode,
+                message, answer, errors, status));
         when(cryptValidator.validateMessage(message)).thenReturn(errors);
-
         errors.addError("mode has to be 'e'(encrypt) or 'd'(decrypt)");
         when(cryptValidator.validateMode(mode)).thenReturn(errors);
 
         ResponseEntity<CryptResponse> response = cryptController.cryptString(mode, message);
+        verify(inMemoryStorage, times(1)).saveCryptResponse(any(CryptResponse.class));
+
         ValidationCryptError result = Objects.requireNonNull(response.getBody()).errors();
         assertNotNull(result);
         assertEquals(errors, result);

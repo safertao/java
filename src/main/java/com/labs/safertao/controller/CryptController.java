@@ -78,7 +78,7 @@ public class CryptController
             errors.addError(error);
             status = HttpStatus.INTERNAL_SERVER_ERROR.name();
             logger.error(error);
-            CryptResponse response = new CryptResponse(mode, message, "", errors, status);
+            CryptResponse response = new CryptResponse(mode, message, error, errors, status);
             inMemoryStorage.saveCryptResponse(response);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
