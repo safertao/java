@@ -1,12 +1,14 @@
 package com.labs.safertao.database;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.labs.safertao.entity.InputPair;
 import jakarta.persistence.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "crypts")
+@Component
 public class CryptEntity
 {
     @Id

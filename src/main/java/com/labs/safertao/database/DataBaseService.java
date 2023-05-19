@@ -58,11 +58,4 @@ public class DataBaseService
         nextId++;
         return nextId - 1;
     }
-
-//    // сохранить по индексу
-//    public void save(Numbers numbers, ResultPair resultPair, long id){
-//        DbEntity entity = new DbEntity(numbers, resultPair);
-//        entity.setId((int)id);
-//        repository.save(entity);
-//    }
 }
