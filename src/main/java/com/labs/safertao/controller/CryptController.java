@@ -1,5 +1,7 @@
 package com.labs.safertao.controller;
 
+import com.labs.safertao.database.CryptEntity;
+import com.labs.safertao.database.DataBaseService;
 import com.labs.safertao.entity.*;
 import com.labs.safertao.memory.InMemoryStorage;
 import com.labs.safertao.service.CryptService;
@@ -26,29 +28,33 @@ public class CryptController
     private CryptValidator cryptValidator;
     private InMemoryStorage inMemoryStorage;
     private CounterService counterService;
+    private DataBaseService dataBaseService;
 
     @Autowired
     public CryptController(CryptService cryptService, CryptValidator cryptValidator,
-                           InMemoryStorage inMemoryStorage, CounterService service)
+                           InMemoryStorage inMemoryStorage, CounterService service, DataBaseService dataBaseService)
     {
         this.cryptService = cryptService;
         this.cryptValidator = cryptValidator;
         this.inMemoryStorage = inMemoryStorage;
         this.counterService = service;
+        this.dataBaseService = dataBaseService;
     }
 
     @GetMapping("/crypt")
     public ResponseEntity<CryptResponse> cryptString(@RequestParam("mode") char mode, @RequestParam("message") String message)
     {
         String status = null;
-        if(inMemoryStorage.getSavedCryptResponse(message) != null)
+        InputPair pair = new InputPair(mode, message);
+        if(inMemoryStorage.getSavedCryptResponse(pair) != null)
         {
             counterService.incrementCounter();
             counterService.incrementSynchronizedCounter();
-            CryptResponse tmp = inMemoryStorage.getSavedCryptResponse(message);
+            CryptResponse tmp = inMemoryStorage.getSavedCryptResponse(pair);
             CryptResponse response = new CryptResponse(tmp.mode(), tmp.message(), tmp.answer(), tmp.errors(), tmp.status());
             return new ResponseEntity<>(response, HttpStatus.valueOf(tmp.status()));
         }
+        // TODO: check db
         logger.info("validation");
         ValidationCryptError errors = cryptValidator.validateMessage(message);
         ValidationCryptError modeErrors = cryptValidator.validateMode(mode);
@@ -124,5 +130,12 @@ public class CryptController
 
         return new ResponseEntity<>(new BulkCryptResponse(result, minLengthString,
                                     maxLengthString, avgLength), resultStatus[0]);
+    }
+
+    @GetMapping("/getdb")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<CryptEntity>> getDB()
+    {
+        return new ResponseEntity<>(dataBaseService.getAllCrypts(), HttpStatus.OK);
     }
 }

@@ -1,6 +1,7 @@
 package com.labs.safertao.memory;
 
 import com.labs.safertao.entity.CryptResponse;
+import com.labs.safertao.entity.InputPair;
 import org.springframework.stereotype.Component;
 import java.util.Collection;
 import java.util.HashMap;
@@ -10,14 +11,14 @@ import java.util.Map;
 @Component
 public class InMemoryStorage
 {
-    private Map<String, CryptResponse> dataStorage = new HashMap<String, CryptResponse>();
+    private Map<InputPair, CryptResponse> dataStorage = new HashMap<InputPair, CryptResponse>();
 
     public synchronized void saveCryptResponse(CryptResponse response)
     {
-        dataStorage.put(response.message(), response);
+        dataStorage.put(new InputPair(response.mode(), response.message()), response);
     }
 
-    public CryptResponse getSavedCryptResponse(String key)
+    public CryptResponse getSavedCryptResponse(InputPair key)
     {
         return dataStorage.get(key);
     }
@@ -32,6 +33,6 @@ public class InMemoryStorage
         return dataStorage.values();
     }
 
-    public Map<String, CryptResponse> getDataStorage() { return dataStorage; }
+    public Map<InputPair, CryptResponse> getDataStorage() { return dataStorage; }
 
 }

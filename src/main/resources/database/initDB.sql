@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS crypts
+(
+    id    INTEGER PRIMARY KEY ,
+    mode  CHAR NOT NULL ,
+    message VARCHAR(30) NOT NULL ,
+    answer VARCHAR(30)  NOT NULL
+);
+
+CREATE SEQUENCE IF NOT EXISTS results_id_seq START WITH 1 INCREMENT BY 1;
+
+-- DROP TABLE IF EXISTS crypts;
+-- DROP SEQUENCE IF EXISTS crypts_id_seq

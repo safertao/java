@@ -1,5 +1,6 @@
 package com.labs.safertao.controller;
 
+import com.labs.safertao.database.DataBaseService;
 import com.labs.safertao.entity.*;
 import com.labs.safertao.memory.InMemoryStorage;
 import com.labs.safertao.service.CounterService;
@@ -33,8 +34,12 @@ public class CryptControllerTest {
     @Mock
     private CounterService counterService;
 
+    @Mock
+    private DataBaseService dataBaseService;
+
     @InjectMocks
-    private CryptController cryptController = new CryptController(cryptService, cryptValidator, inMemoryStorage, counterService);
+    private CryptController cryptController = new CryptController(cryptService,
+            cryptValidator, inMemoryStorage, counterService, dataBaseService);
 
     @Test
     public void testCryptString() {
@@ -127,7 +132,7 @@ public class CryptControllerTest {
         ValidationCryptError errors = new ValidationCryptError();
         CryptResponse savedResponse = new CryptResponse(mode, message, answer, errors, status);
 
-        when(inMemoryStorage.getSavedCryptResponse(message)).thenReturn(savedResponse);
+        when(inMemoryStorage.getSavedCryptResponse(new InputPair(mode, message))).thenReturn(savedResponse);
         ResponseEntity<CryptResponse> response = cryptController.cryptString(mode, message);
         CryptResponse result = response.getBody();
 
@@ -161,8 +166,8 @@ public class CryptControllerTest {
         resultList.add(res1);
         resultList.add(res2);
 
-        when(inMemoryStorage.getSavedCryptResponse(message1)).thenReturn(null);
-        when(inMemoryStorage.getSavedCryptResponse(message2)).thenReturn(null);
+        when(inMemoryStorage.getSavedCryptResponse(new InputPair(mode1, message1))).thenReturn(null);
+        when(inMemoryStorage.getSavedCryptResponse(new InputPair(mode2, message2))).thenReturn(null);
         doNothing().when(inMemoryStorage).saveCryptResponse(res1);
         doNothing().when(inMemoryStorage).saveCryptResponse(res2);
         when(cryptService.cryptMessage(mode1, message1)).thenReturn(answer1);
