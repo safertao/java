@@ -80,9 +80,4 @@ public class CryptEntity
     {
         this.answer = answer;
     }
-
-    public InputPair getInputPair()
-    {
-        return new InputPair(this.mode, this.message);
-    }
 }

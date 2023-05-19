@@ -1,7 +1,6 @@
 package com.labs.safertao.database;
 
 import com.labs.safertao.entity.CryptResponse;
-import com.labs.safertao.entity.InputPair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,11 +21,6 @@ public class DataBaseService
 
     public DataBaseService(){}
 
-    public void saveCrypts(List<CryptResponse> crypts)
-    {
-        crypts.forEach(this::saveCrypt);
-    }
-
     public void saveCrypt(CryptResponse crypt)
     {
         CryptEntity entity = new CryptEntity(crypt.mode(), crypt.message(), crypt.answer());
@@ -38,19 +32,17 @@ public class DataBaseService
         return repository.findAll();
     }
 
-    public CryptEntity getCryptEntity(InputPair input)
+    public CryptEntity getCryptEntity(char mode, String message)
     {
         for(CryptEntity entity:getAllCrypts())
         {
-            if(entity.getInputPair().equals(input))
+            if(entity.getMode() == mode && entity.getMessage().equals(message))
                 return entity;
         }
         return null;
     }
 
-    public long size(){
-        return repository.count();
-    }
+    public long size() { return repository.count(); }
 
     public CryptEntity getById(long id)
     {
@@ -66,7 +58,7 @@ public class DataBaseService
         nextId++;
         return nextId - 1;
     }
-//
+
 //    // сохранить по индексу
 //    public void save(Numbers numbers, ResultPair resultPair, long id){
 //        DbEntity entity = new DbEntity(numbers, resultPair);

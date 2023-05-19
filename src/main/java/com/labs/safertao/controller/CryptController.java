@@ -46,19 +46,28 @@ public class CryptController
     {
         String status = null;
         InputPair pair = new InputPair(mode, message);
+        CryptEntity dbEntity;
+        if((dbEntity = dataBaseService.getCryptEntity(mode, message)) != null)
+        {
+            logger.info("data was in database already");
+            counterService.incrementCounter();
+            counterService.incrementSynchronizedCounter();
+            CryptResponse response = new CryptResponse(dbEntity.getMode(), dbEntity.getMessage(),
+                    dbEntity.getAnswer(), new ValidationCryptError(), HttpStatus.OK.name());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
         if(inMemoryStorage.getSavedCryptResponse(pair) != null)
         {
+            logger.info("data was in memory storage already");
             counterService.incrementCounter();
             counterService.incrementSynchronizedCounter();
             CryptResponse tmp = inMemoryStorage.getSavedCryptResponse(pair);
             CryptResponse response = new CryptResponse(tmp.mode(), tmp.message(), tmp.answer(), tmp.errors(), tmp.status());
             return new ResponseEntity<>(response, HttpStatus.valueOf(tmp.status()));
         }
-        // TODO: check db
         logger.info("validation");
         ValidationCryptError errors = cryptValidator.validateMessage(message);
         ValidationCryptError modeErrors = cryptValidator.validateMode(mode);
-
         if(!modeErrors.getErrors().isEmpty())
         {
             errors.addErrors(modeErrors.getErrors());
@@ -91,6 +100,7 @@ public class CryptController
         status = HttpStatus.OK.name();
         CryptResponse response = new CryptResponse(mode, message, answer, errors, status);
         inMemoryStorage.saveCryptResponse(response);
+        dataBaseService.saveCrypt(response);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
